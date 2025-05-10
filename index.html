@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .slide {
+            display: none;
+        }
+        .slide.active {
+            display: block;
+        }
+        .time-slot {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .time-slot:hover {
+            transform: scale(1.02);
+        }
+        .chat-container {
+            height: calc(100vh - 180px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Onboarding Slides -->
+    <div id="onboarding" class="fixed inset-0 bg-white z-50">
+        <div class="max-w-md mx-auto p-6 h-screen flex flex-col justify-between">
+            <div class="slides h-full">
+                <div class="slide active h-full flex flex-col justify-center items-center">
+                    <img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=300" alt="Habits" class="w-48 mb-8">
+                    <h2 class="text-2xl font-bold mb-4">Track Your Habits</h2>
+                    <p class="text-gray-600 text-center">Monitor daily habits and measure your productivity with our intuitive tracking system.</p>
+                </div>
+                <div class="slide h-full flex flex-col justify-center items-center">
+                    <img src="https://images.unsplash.com/photo-1533227268428-f9ed0900fb3b?auto=format&fit=crop&w=300" alt="Goals" class="w-48 mb-8">
+                    <h2 class="text-2xl font-bold mb-4">Set Smart Goals</h2>
+                    <p class="text-gray-600 text-center">Create and manage your goals with priority levels and deadlines.</p>
+                </div>
+                <div class="slide h-full flex flex-col justify-center items-center">
+                    <img src="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=300" alt="AI" class="w-48 mb-8">
+                    <h2 class="text-2xl font-bold mb-4">AI-Powered Scheduling</h2>
+                    <p class="text-gray-600 text-center">Get intelligent suggestions for optimal time management.</p>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <button id="prevSlide" class="text-blue-600 px-4 py-2 rounded-lg">Previous</button>
+                <div class="flex space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+                    <div class="w-2 h-2 rounded-full bg-gray-300"></div>
+                    <div class="w-2 h-2 rounded-full bg-gray-300"></div>
+                </div>
+                <button id="nextSlide" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <!-- Navigation -->
+        <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 py-2 px-4">
+            <div class="max-w-md mx-auto flex justify-between items-center">
+                <button class="nav-btn active flex flex-col items-center text-blue-600" data-page="home">
+                    <i class="bi bi-house-door text-xl"></i>
+                    <span class="text-xs">Home</span>
+                </button>
+                <button class="nav-btn flex flex-col items-center text-gray-500" data-page="goals">
+                    <i class="bi bi-trophy text-xl"></i>
+                    <span class="text-xs">Goals</span>
+                </button>
+                <button class="nav-btn flex flex-col items-center text-gray-500" data-page="schedule">
+                    <i class="bi bi-calendar text-xl"></i>
+                    <span class="text-xs">Schedule</span>
+                </button>
+                <button class="nav-btn flex flex-col items-center text-gray-500" data-page="stats">
+                    <i class="bi bi-graph-up text-xl"></i>
+                    <span class="text-xs">Stats</span>
+                </button>
+                <button class="nav-btn flex flex-col items-center text-gray-500" data-page="chat">
+                    <i class="bi bi-chat-dots text-xl"></i>
+                    <span class="text-xs">Chat</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Pages -->
+        <div class="pages pb-20">
+            <!-- Home Page -->
+            <div id="home" class="page active max-w-md mx-auto p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Today's Progress</h1>
+                    <button class="text-blue-600"><i class="bi bi-gear"></i></button>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+                    <h2 class="font-semibold mb-3">How productive were you today?</h2>
+                    <input type="range" min="1" max="10" value="5" class="w-full" id="productivitySlider">
+                    <div class="flex justify-between text-gray-500 text-sm">
+                        <span>😴</span>
+                        <span>🚀</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+                    <h2 class="font-semibold mb-3">Daily Habits</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                            <span class="ml-2">Exercise</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                            <span class="ml-2">Study Java</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                            <span class="ml-2">Meditate</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <h2 class="font-semibold mb-3">AI Suggestion</h2>
+                    <div class="bg-blue-50 rounded-lg p-3">
+                        <p class="text-sm text-blue-800">Based on your data, you're most productive at 9 AM. Would you like to schedule Java study then?</p>
+                        <div class="flex space-x-2 mt-3">
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Accept</button>
+                            <button class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg text-sm">Decline</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals Page -->
+            <div id="goals" class="page hidden max-w-md mx-auto p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Goals</h1>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg" id="addGoalBtn">Add Goal</button>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-red-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-semibold">Learn Java</h3>
+                                <p class="text-sm text-gray-500">2 hours/day • High Priority</p>
+                            </div>
+                            <button class="text-gray-400"><i class="bi bi-three-dots-vertical"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-yellow-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-semibold">Exercise Routine</h3>
+                                <p class="text-sm text-gray-500">30 mins/day • Medium Priority</p>
+                            </div>
+                            <button class="text-gray-400"><i class="bi bi-three-dots-vertical"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Page -->
+            <div id="schedule" class="page hidden max-w-md mx-auto p-4">
+                <h1 class="text-2xl font-bold mb-6">Today's Schedule</h1>
+                
+                <div class="space-y-3">
+                    <div class="time-slot bg-white rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500">9:00 AM - 11:00 AM</p>
+                                <h3 class="font-semibold">Java Study</h3>
+                            </div>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">AI Suggested</span>
+                        </div>
+                    </div>
+
+                    <div class="time-slot bg-white rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500">2:00 PM - 2:30 PM</p>
+                                <h3 class="font-semibold">Exercise</h3>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Scheduled</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Page -->
+            <div id="stats" class="page hidden max-w-md mx-auto p-4">
+                <h1 class="text-2xl font-bold mb-6">Your Progress</h1>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+                    <h2 class="font-semibold mb-3">Productivity Trend</h2>
+                    <canvas id="productivityChart"></canvas>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+                    <h2 class="font-semibold mb-3">Habit Consistency</h2>
+                    <canvas id="habitsChart"></canvas>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <h2 class="font-semibold mb-3">Distractions</h2>
+                    <canvas id="distractionsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chat Page -->
+            <div id="chat" class="page hidden max-w-md mx-auto p-4">
+                <h1 class="text-2xl font-bold mb-6">AI Assistant</h1>
+
+                <div class="chat-container bg-white rounded-xl p-4 shadow-sm overflow-y-auto">
+                    <div class="space-y-4">
+                        <div class="flex justify-end">
+                            <div class="bg-blue-600 text-white rounded-lg p-3 max-w-xs">
+                                <p>Help me plan my day</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
+                                <p>Based on your productivity patterns, here's a suggested schedule:</p>
+                                <ul class="mt-2 space-y-1 text-sm">
+                                    <li>9 AM - Java Study (2 hrs)</li>
+                                    <li>2 PM - Exercise (30 mins)</li>
+                                </ul>
+                                <div class="flex space-x-2 mt-3">
+                                    <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Apply Schedule</button>
+                                    <button class="border border-blue-600 text-blue-600 px-3 py-1 rounded text-sm">Modify</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fixed bottom-20 left-0 right-0 bg-white border-t border-gray-200 p-4">
+                    <div class="max-w-md mx-auto flex space-x-2">
+                        <button class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm">Plan my day</button>
+                        <button class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm">Adjust schedule</button>
+                        <button class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm">Get advice</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Onboarding Slides
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelector('.flex.space-x-2').children;
+        const nextBtn = document.getElementById('nextSlide');
+        const prevBtn = document.getElementById('prevSlide');
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('bg-blue-600');
+            dots[currentSlide].classList.add('bg-gray-300');
+            
+            currentSlide = n;
+            
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.remove('bg-gray-300');
+            dots[currentSlide].classList.add('bg-blue-600');
+            
+            prevBtn.style.visibility = currentSlide === 0 ? 'hidden' : 'visible';
+            if (currentSlide === slides.length - 1) {
+                nextBtn.textContent = 'Get Started';
+            } else {
+                nextBtn.textContent = 'Next';
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide === slides.length - 1) {
+                document.getElementById('onboarding').style.display = 'none';
+                document.getElementById('app').classList.remove('hidden');
+                return;
+            }
+            showSlide(currentSlide + 1);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) showSlide(currentSlide - 1);
+        });
+
+        // Navigation
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const pages = document.querySelectorAll('.page');
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navBtns.forEach(b => {
+                    b.classList.remove('text-blue-600');
+                    b.classList.add('text-gray-500');
+                });
+                btn.classList.remove('text-gray-500');
+                btn.classList.add('text-blue-600');
+
+                pages.forEach(page => page.classList.add('hidden'));
+                document.getElementById(btn.dataset.page).classList.remove('hidden');
+            });
+        });
+
+        // Charts
+        function initCharts() {
+            // Productivity Chart
+            new Chart(document.getElementById('productivityChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        data: [7, 6, 8, 7, 9, 8, 7],
+                        borderColor: '#2563eb',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: 0, max: 10 } }
+                }
+            });
+
+            // Habits Chart
+            new Chart(document.getElementById('habitsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Exercise', 'Java Study', 'Meditate'],
+                    datasets: [{
+                        data: [5, 6, 4],
+                        backgroundColor: '#93c5fd'
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: 0, max: 7 } }
+                }
+            });
+
+            // Distractions Chart
+            new Chart(document.getElementById('distractionsChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Social Media', 'TV', 'Other'],
+                    datasets: [{
+                        data: [40, 35, 25],
+                        backgroundColor: ['#fca5a5', '#93c5fd', '#fcd34d']
+                    }]
+                },
+                options: {
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+        }
+
+        // Initialize charts when stats page is shown
+        document.querySelector('[data-page="stats"]').addEventListener('click', initCharts);
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
